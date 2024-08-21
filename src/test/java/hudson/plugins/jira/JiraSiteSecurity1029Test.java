@@ -14,6 +14,7 @@ import com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl;
 import hudson.model.Item;
 import hudson.model.User;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -52,9 +53,12 @@ public class JiraSiteSecurity1029Test {
         j.timeout = 0;
     }
 
-    private Server server;
-    private URI serverUri;
-    private FakeJiraServlet servlet;
+//    private Server server;
+//    private URI serverUri;
+    private URI serverUri2;
+//    private FakeJiraServlet servlet;
+
+    private FakeJiraServer server2;
 
     @Test
     @Issue("SECURITY-1029")
@@ -115,16 +119,30 @@ public class JiraSiteSecurity1029Test {
             wc = wc.withBasicApiToken(admin);
 
             String jiraSiteValidateUrl = j.getURL() + "descriptorByName/" + JiraSite.class.getName() + "/validate";
-            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
-            request.setRequestParameters(Arrays.asList(
+
+
+//            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+//            request.setRequestParameters(Arrays.asList(
+//                    new NameValuePair("threadExecutorNumber", "1"),
+//                    new NameValuePair("url", serverUri.toString()),
+//                    new NameValuePair("credentialsId", credId_1),
+//                    new NameValuePair("useHTTPAuth", "true")));
+//
+//            Page page = wc.getPage(request);
+//            assertThat(page.getWebResponse().getStatusCode(), equalTo(200));
+//            assertThat(servlet.getPasswordAndReset(), equalTo(pwd1));
+
+
+            WebRequest request2 = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+            request2.setRequestParameters(Arrays.asList(
                     new NameValuePair("threadExecutorNumber", "1"),
-                    new NameValuePair("url", serverUri.toString()),
+                    new NameValuePair("url", serverUri2.toString()),
                     new NameValuePair("credentialsId", credId_1),
                     new NameValuePair("useHTTPAuth", "true")));
 
-            Page page = wc.getPage(request);
-            assertThat(page.getWebResponse().getStatusCode(), equalTo(200));
-            assertThat(servlet.getPasswordAndReset(), equalTo(pwd1));
+            Page page2 = wc.getPage(request2);
+            assertThat(page2.getWebResponse().getStatusCode(), equalTo(200));
+            assertThat(server2.getPasswordAndReset(), equalTo(pwd1));
         }
         { // as an user with just read access, I may not be able to leak any credentials
             JenkinsRule.WebClient wc = j.createWebClient();
@@ -132,17 +150,36 @@ public class JiraSiteSecurity1029Test {
             wc.withBasicApiToken(user);
 
             String jiraSiteValidateUrl = j.getURL() + "descriptorByName/" + JiraSite.class.getName() + "/validate";
-            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
-            request.setRequestParameters(Arrays.asList(
+//            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+//            request.setRequestParameters(Arrays.asList(
+//                    new NameValuePair("threadExecutorNumber", "1"),
+//                    new NameValuePair("url", serverUri.toString()),
+//                    new NameValuePair("credentialsId", credId_2),
+//                    new NameValuePair("useHTTPAuth", "true")));
+//
+//            Page page = wc.getPage(request);
+//            // to avoid trouble, we always validate when the user has not the good permission
+//            assertThat(page.getWebResponse().getStatusCode(), equalTo(403));
+//            assertThat(servlet.getPasswordAndReset(), nullValue());
+
+
+
+
+
+            WebRequest request2 = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+            request2.setRequestParameters(Arrays.asList(
                     new NameValuePair("threadExecutorNumber", "1"),
-                    new NameValuePair("url", serverUri.toString()),
+                    new NameValuePair("url", serverUri2.toString()),
                     new NameValuePair("credentialsId", credId_2),
                     new NameValuePair("useHTTPAuth", "true")));
 
-            Page page = wc.getPage(request);
+            Page page2 = wc.getPage(request2);
             // to avoid trouble, we always validate when the user has not the good permission
-            assertThat(page.getWebResponse().getStatusCode(), equalTo(403));
-            assertThat(servlet.getPasswordAndReset(), nullValue());
+            assertThat(page2.getWebResponse().getStatusCode(), equalTo(403));
+            assertThat(server2.getPasswordAndReset(), nullValue());
+
+
+
         }
 
         { // as an user with just read access, I may not be able to leak any credentials in folder
@@ -156,17 +193,36 @@ public class JiraSiteSecurity1029Test {
             String jiraSiteValidateUrl = j.jenkins.getRootUrl() + folder.getUrl() + "descriptorByName/"
                     + JiraSite.class.getName() + "/validate";
 
-            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
-            request.setRequestParameters(Arrays.asList(
+//            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+//            request.setRequestParameters(Arrays.asList(
+//                    new NameValuePair("threadExecutorNumber", "1"),
+//                    new NameValuePair("url", serverUri.toString()),
+//                    new NameValuePair("credentialsId", credId_2),
+//                    new NameValuePair("useHTTPAuth", "true")));
+//
+//            Page page = wc.getPage(request);
+//            // to avoid trouble, we always validate when the user has not the good permission
+//            assertThat(page.getWebResponse().getStatusCode(), equalTo(403));
+//            assertThat(servlet.getPasswordAndReset(), nullValue());
+
+
+
+
+
+
+            WebRequest request2 = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+            request2.setRequestParameters(Arrays.asList(
                     new NameValuePair("threadExecutorNumber", "1"),
-                    new NameValuePair("url", serverUri.toString()),
+                    new NameValuePair("url", serverUri2.toString()),
                     new NameValuePair("credentialsId", credId_2),
                     new NameValuePair("useHTTPAuth", "true")));
 
-            Page page = wc.getPage(request);
+            Page page2 = wc.getPage(request2);
             // to avoid trouble, we always validate when the user has not the good permission
-            assertThat(page.getWebResponse().getStatusCode(), equalTo(403));
-            assertThat(servlet.getPasswordAndReset(), nullValue());
+            assertThat(page2.getWebResponse().getStatusCode(), equalTo(403));
+            assertThat(server2.getPasswordAndReset(), nullValue());
+
+
         }
 
         { // as an user with just read access, I may not be able to leak any credentials with fake id in a folder
@@ -179,18 +235,35 @@ public class JiraSiteSecurity1029Test {
 
             String jiraSiteValidateUrl = j.jenkins.getRootUrl() + folder.getUrl() + "descriptorByName/"
                     + JiraSite.class.getName() + "/validate";
-            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
-            request.setRequestParameters(Arrays.asList(
+//            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+//            request.setRequestParameters(Arrays.asList(
+//                    new NameValuePair("threadExecutorNumber", "1"),
+//                    new NameValuePair("url", serverUri.toString()),
+//                    new NameValuePair("credentialsId", "aussie-beer-is-the-best"), // use a non existing id on purpose
+//                    new NameValuePair("useHTTPAuth", "true")));
+//
+//            Page page = wc.getPage(request);
+//            WebResponse webResponse = page.getWebResponse();
+//            assertThat(webResponse.getStatusCode(), equalTo(200));
+//            assertThat(webResponse.getContentAsString(), containsString("Cannot validate configuration"));
+//            assertThat(servlet.getPasswordAndReset(), nullValue());
+
+
+
+
+
+            WebRequest request2 = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+            request2.setRequestParameters(Arrays.asList(
                     new NameValuePair("threadExecutorNumber", "1"),
-                    new NameValuePair("url", serverUri.toString()),
+                    new NameValuePair("url", serverUri2.toString()),
                     new NameValuePair("credentialsId", "aussie-beer-is-the-best"), // use a non existing id on purpose
                     new NameValuePair("useHTTPAuth", "true")));
 
-            Page page = wc.getPage(request);
-            WebResponse webResponse = page.getWebResponse();
-            assertThat(webResponse.getStatusCode(), equalTo(200));
-            assertThat(webResponse.getContentAsString(), containsString("Cannot validate configuration"));
-            assertThat(servlet.getPasswordAndReset(), nullValue());
+            Page page2 = wc.getPage(request2);
+            WebResponse webResponse2 = page2.getWebResponse();
+            assertThat(webResponse2.getStatusCode(), equalTo(200));
+            assertThat(webResponse2.getContentAsString(), containsString("Cannot validate configuration"));
+            assertThat(server2.getPasswordAndReset(), nullValue());
         }
 
         { // as an user with configure access, I can access
@@ -204,17 +277,34 @@ public class JiraSiteSecurity1029Test {
             String jiraSiteValidateUrl = j.jenkins.getRootUrl() + folder.getUrl() + "descriptorByName/"
                     + JiraSite.class.getName() + "/validate";
 
-            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
-            request.setRequestParameters(Arrays.asList(
+//            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+//            request.setRequestParameters(Arrays.asList(
+//                    new NameValuePair("threadExecutorNumber", "1"),
+//                    new NameValuePair("url", serverUri.toString()),
+//                    new NameValuePair("credentialsId", credId_2),
+//                    new NameValuePair("useHTTPAuth", "true")));
+//
+//            Page page = wc.getPage(request);
+//            // to avoid trouble, we always validate when the user has the good permission
+//            assertThat(page.getWebResponse().getStatusCode(), equalTo(200));
+//            assertThat(servlet.getPasswordAndReset(), equalTo(pwd2));
+
+
+
+
+            WebRequest request2 = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+            request2.setRequestParameters(Arrays.asList(
                     new NameValuePair("threadExecutorNumber", "1"),
-                    new NameValuePair("url", serverUri.toString()),
+                    new NameValuePair("url", serverUri2.toString()),
                     new NameValuePair("credentialsId", credId_2),
                     new NameValuePair("useHTTPAuth", "true")));
 
-            Page page = wc.getPage(request);
+            Page page2 = wc.getPage(request2);
             // to avoid trouble, we always validate when the user has the good permission
-            assertThat(page.getWebResponse().getStatusCode(), equalTo(200));
-            assertThat(servlet.getPasswordAndReset(), equalTo(pwd2));
+            assertThat(page2.getWebResponse().getStatusCode(), equalTo(200));
+            assertThat(server2.getPasswordAndReset(), equalTo(pwd2));
+
+
         }
 
         { // as an user with folder access, I can access
@@ -231,117 +321,153 @@ public class JiraSiteSecurity1029Test {
             String jiraSiteValidateUrl = j.jenkins.getRootUrl() + folder.getUrl() + "descriptorByName/"
                     + JiraSite.class.getName() + "/validate";
 
-            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
-            request.setRequestParameters(Arrays.asList(
+//            WebRequest request = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+//            request.setRequestParameters(Arrays.asList(
+//                    new NameValuePair("threadExecutorNumber", "1"),
+//                    new NameValuePair("url", serverUri.toString()),
+//                    new NameValuePair("credentialsId", credId_3),
+//                    new NameValuePair("useHTTPAuth", "true")));
+//
+//            Page page = wc.getPage(request);
+//            // to avoid trouble, we always validate when the user has the good permission
+//            assertThat(page.getWebResponse().getStatusCode(), equalTo(200));
+//            assertThat(servlet.getPasswordAndReset(), equalTo(pwd3));
+//
+
+
+
+
+
+            WebRequest request2 = new WebRequest(new URL(jiraSiteValidateUrl), HttpMethod.POST);
+            request2.setRequestParameters(Arrays.asList(
                     new NameValuePair("threadExecutorNumber", "1"),
-                    new NameValuePair("url", serverUri.toString()),
+                    new NameValuePair("url", serverUri2.toString()),
                     new NameValuePair("credentialsId", credId_3),
                     new NameValuePair("useHTTPAuth", "true")));
 
-            Page page = wc.getPage(request);
+            Page page2 = wc.getPage(request2);
             // to avoid trouble, we always validate when the user has the good permission
-            assertThat(page.getWebResponse().getStatusCode(), equalTo(200));
-            assertThat(servlet.getPasswordAndReset(), equalTo(pwd3));
+            assertThat(page2.getWebResponse().getStatusCode(), equalTo(200));
+            assertThat(server2.getPasswordAndReset(), equalTo(pwd3));
+
+
+
+
+
+
+
         }
     }
 
     public void setupServer() throws Exception {
-        server = new Server();
-        ServerConnector connector = new ServerConnector(server);
-        // auto-bind to available port
-        connector.setPort(0);
-        server.addConnector(connector);
+//        server = new Server();
+//        ServerConnector connector = new ServerConnector(server);
+//        // auto-bind to available port
+//        connector.setPort(0);
+//        server.addConnector(connector);
+//
+//        servlet = new FakeJiraServlet(j);
+//
+//        ServletContextHandler context = new ServletContextHandler();
+//        ServletHolder servletHolder = new ServletHolder("default", servlet);
+//        context.addServlet(servletHolder, "/*");
+//        server.setHandler(context);
+//
+//        server.start();
+//
+//        String host = connector.getHost();
+//        if (host == null) {
+//            host = "localhost";
+//        }
+//
+//        int port = connector.getLocalPort();
+//        serverUri = new URI(String.format("http://%s:%d/", host, port));
+//        servlet.setServerUrl(serverUri);
+//
 
-        servlet = new FakeJiraServlet(j);
 
-        ServletContextHandler context = new ServletContextHandler();
-        ServletHolder servletHolder = new ServletHolder("default", servlet);
-        context.addServlet(servletHolder, "/*");
-        server.setHandler(context);
+        InetSocketAddress address = new InetSocketAddress("localhost", 0);
+        server2 = new FakeJiraServer(address);
+        server2.start();
+        serverUri2 = server2.getServerUri();
 
-        server.start();
-
-        String host = connector.getHost();
-        if (host == null) {
-            host = "localhost";
-        }
-
-        int port = connector.getLocalPort();
-        serverUri = new URI(String.format("http://%s:%d/", host, port));
-        servlet.setServerUrl(serverUri);
     }
 
     @After
-    public void stopEmbeddedJettyServer() {
-        try {
-            server.stop();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void stopFakeJiraServer() {
+//        try {
+////            server.stop();
+//
+//            server2.stop();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        server2.stop();
     }
 
-    private static class FakeJiraServlet extends DefaultServlet {
-
-        private JenkinsRule jenkinsRule;
-        private URI serverUri;
-
-        private String pwdCollected;
-
-        public FakeJiraServlet(JenkinsRule jenkinsRule) {
-            this.jenkinsRule = jenkinsRule;
-        }
-
-        public void setServerUrl(URI serverUri) {
-            this.serverUri = serverUri;
-        }
-
-        public String getPasswordAndReset() {
-            String result = pwdCollected;
-            this.pwdCollected = null;
-            return result;
-        }
-
-        @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            String path = req.getRequestURL().toString();
-            String relativePath = path.substring(this.serverUri.toString().length());
-
-            String authBasicBase64 = req.getHeader("Authorization");
-            String authBase64 = authBasicBase64.substring("Basic ".length());
-            String auth = new String(Base64.getDecoder().decode(authBase64), StandardCharsets.UTF_8);
-            String[] authArray = auth.split(":");
-            String user = authArray[0];
-            String pwd = authArray[1];
-
-            this.pwdCollected = pwd;
-
-            switch (relativePath) {
-                case "rest/api/latest/mypermissions":
-                    myPermissions(req, resp);
-                    break;
-            }
-        }
-
-        private void myPermissions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-            Object body = new HashMap<String, Object>() {
-                {
-                    put("permissions", new HashMap<String, Object>() {
-                        {
-                            put("perm_1", new HashMap<String, Object>() {
-                                {
-                                    put("id", 1);
-                                    put("key", "perm_key");
-                                    put("name", "perm_name");
-                                    put("description", null);
-                                    put("havePermission", "true");
-                                }
-                            });
-                        }
-                    });
-                }
-            };
-
-            resp.getWriter().write(JSONObject.fromObject(body).toString());
-        }
-    }
+//    private static class FakeJiraServlet extends DefaultServlet {
+//
+//        private JenkinsRule jenkinsRule;
+//        private URI serverUri;
+//
+//        private String pwdCollected;
+//
+//        public FakeJiraServlet(JenkinsRule jenkinsRule) {
+//            this.jenkinsRule = jenkinsRule;
+//        }
+//
+//        public void setServerUrl(URI serverUri) {
+//            this.serverUri = serverUri;
+//        }
+//
+//        public String getPasswordAndReset() {
+//            String result = pwdCollected;
+//            this.pwdCollected = null;
+//            return result;
+//        }
+//
+//        @Override
+//        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//            String path = req.getRequestURL().toString();
+//            String relativePath = path.substring(this.serverUri.toString().length());
+//
+//            String authBasicBase64 = req.getHeader("Authorization");
+//            String authBase64 = authBasicBase64.substring("Basic ".length());
+//            String auth = new String(Base64.getDecoder().decode(authBase64), StandardCharsets.UTF_8);
+//            String[] authArray = auth.split(":");
+//            String user = authArray[0];
+//            String pwd = authArray[1];
+//
+//            this.pwdCollected = pwd;
+//
+//            switch (relativePath) {
+//                case "rest/api/latest/mypermissions":
+//                    myPermissions(req, resp);
+//                    break;
+//            }
+//        }
+//
+//        private void myPermissions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+//            Object body = new HashMap<String, Object>() {
+//                {
+//                    put("permissions", new HashMap<String, Object>() {
+//                        {
+//                            put("perm_1", new HashMap<String, Object>() {
+//                                {
+//                                    put("id", 1);
+//                                    put("key", "perm_key");
+//                                    put("name", "perm_name");
+//                                    put("description", null);
+//                                    put("havePermission", "true");
+//                                }
+//                            });
+//                        }
+//                    });
+//                }
+//            };
+//
+//            resp.getWriter().write(JSONObject.fromObject(body).toString());
+//        }
+//    }
 }
